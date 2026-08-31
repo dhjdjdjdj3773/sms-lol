@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Отправитель</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #0b0b0c; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+        .phone-card { background: #161618; border-radius: 24px; padding: 24px; width: 100%; max-width: 360px; border: 1px solid #242427; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+        h1 { font-size: 22px; margin-bottom: 6px; text-align: center; color: #2f80ed; font-weight: 700; }
+        p { font-size: 13px; color: #7e7e82; text-align: center; margin-bottom: 24px; }
+        input { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid #2c2c2e; background: #1c1c1e; color: #fff; font-size: 18px; outline: none; transition: all 0.2s; text-align: center; margin-bottom: 16px; }
+        input:focus { border-color: #2f80ed; background: #242427; }
+        button { width: 100%; padding: 16px; border-radius: 14px; border: none; background: #2f80ed; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.1s; }
+        button:active { background: #1b59b3; transform: scale(0.98); }
+        #status { margin-top: 16px; text-align: center; font-size: 14px; display: none; padding: 12px; border-radius: 10px; }
+        .success { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+        .error { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+    </style>
+</head>
+<body>
+<div class="phone-card">
+    <h1>SMS Сервис</h1>
+    <p>Введите номер для отправки кодов авторизации</p>
+    <form id="smsForm">
+        <input type="tel" id="phone" placeholder="79991234567" maxlength="11" required autocomplete="off">
+        <button type="submit" id="btn">Запустить</button>
+    </form>
+    <div id="status"></div>
+</div>
+<script>
+    document.getElementById('smsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn');
+        const status = document.getElementById('status');
+        const phone = document.getElementById('phone').value.replace(/\D/g, '');
+
+        if (phone.length < 11) {
+            showMsg('Введите 11 цифр номера', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = 'Отправка...';
+        status.style.display = 'none';
+
+        try {
+            // СЮДА ПОДСТАВЬ ССЫЛКУ НА СВОЙ СЕРВЕР RENDER
+            const BACKEND_URL = 'https://onrender.com'; 
+            
+            const response = await fetch(`${BACKEND_URL}/api/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone })
+            });
+            if (response.ok) {
+                showMsg('Запущено! SMS отправляются.', 'success');
+            } else {
+                showMsg('Ошибка сервера', 'error');
+            }
+        } catch {
+            showMsg('Не удалось связаться с сервером', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Запустить';
+        }
+    });
+    function showMsg(text, type) {
+        status.innerText = text;
+        status.className = type;
+        status.style.display = 'block';
+    }
+</script>
+</body>
+</html>
